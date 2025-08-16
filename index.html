@@ -1,47 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ASP.NET Core Concepts</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2em;
-      background-color: #f9f9f9;
-      color: #333;
-    }
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ASP.NET Core Tutorial Home</title>
+		<style>
+			body {
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				padding: 25px 30px;
+				line-height: 1.6;
+				color: #333;
+				background: #f9f9f9;
+			}
+			h1 {
+				color: #2c3e50;
+				text-align: center;
+				font-size: 2.5em;
+				margin-bottom: 20px;
+				font-weight: bold;
+			}
+			h2 {
+				color: #34495e;
+				border-bottom: 3px solid #3498db;
+				padding-bottom: 10px;
+				margin: 30px 0 20px;
+				font-size: 2em;
+				font-weight: bold;
+			}
+			p {
+				margin: 10px 0;
+				font-size: 1.2em;
+				text-align: center;
+			}
+			.nav-links {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 30px;
+				margin: 40px 0 0 0;
+			}
+			.nav-card {
+				background: #fff;
+				border: 2px solid #3498db;
+				border-radius: 12px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+				padding: 32px 38px;
+				min-width: 260px;
+				max-width: 340px;
+				text-align: center;
+				transition: box-shadow 0.2s, border-color 0.2s;
+			}
+			.nav-card:hover {
+				border-color: #2980b9;
+				box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+			}
+			.nav-card h3 {
+				color: #2c3e50;
+				font-size: 1.4em;
+				margin-bottom: 12px;
+				font-weight: bold;
+			}
+			.nav-card p {
+				font-size: 1em;
+				color: #555;
+				margin-bottom: 18px;
+			}
+			.nav-card a {
+				display: inline-block;
+				padding: 0.7em 1.5em;
+				background-color: #3498db;
+				color: white;
+				text-decoration: none;
+				border-radius: 5px;
+				font-weight: bold;
+				font-size: 1.1em;
+				transition: background-color 0.3s;
+			}
+			.nav-card a:hover {
+				background-color: #2980b9;
+			}
+			@media (max-width: 700px) {
+				.nav-links {
+					flex-direction: column;
+					gap: 20px;
+				}
+				.nav-card {
+					min-width: unset;
+					max-width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<h1>ASP.NET Core Tutorial 🚀</h1>
+		<p>
+			Master ASP.NET Core with clear, practical, and example-driven
+			notes.<br />
+			Select a topic to get started:
+		</p>
 
-    h1 {
-      color: #2c3e50;
-      font-size: 2em;
-      margin-bottom: 0.5em;
-    }
-
-    p {
-      font-size: 1.1em;
-      margin-bottom: 1.5em;
-    }
-
-    a {
-      display: inline-block;
-      padding: 0.5em 1em;
-      background-color: #3498db;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      transition: background-color 0.3s ease;
-    }
-
-    a:hover {
-      background-color: #2980b9;
-    }
-  </style>
-</head>
-<body>
-  <h1>ASP.NET Core Concepts</h1>
-  <p>Explore key topics and practical examples to master ASP.NET Core development.</p>
-
-  <a href="/ModelBindingValidation.html">Model Binding & Validation</a>
-</body>
+		<div class="nav-links">
+			<div class="nav-card">
+				<h3>Model Binding &amp; Validation</h3>
+				<p>
+					Learn how ASP.NET Core binds HTTP data to models and
+					validates user input using data annotations and custom
+					logic.
+				</p>
+				<a href="ModelBindingValidation.html"
+					>Explore Model Binding &amp; Validation</a
+				>
+			</div>
+			<div class="nav-card">
+				<h3>Middleware</h3>
+				<p>
+					Understand the request pipeline, build custom middleware,
+					and control HTTP processing in ASP.NET Core.
+				</p>
+				<a href="MiddleWare.html">Explore Middleware</a>
+			</div>
+		</div>
+	</body>
 </html>

@@ -1,80 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASP.NET Core - Model Binding & Validation Notes</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px 30px; line-height: 1.6; color: #333; }
-        h1 { color: #2c3e50; text-align: center; font-size: 2.5em; margin-bottom: 20px; font-weight: bold; }
-        h2 { color: #34495e; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin: 30px 0 20px; font-size: 2em; font-weight: bold; }
-        h3 { color: #2c3e50; margin: 20px 0 15px; font-size: 1.5em; font-weight: bold; }
-        ul, ol { padding-left: 25px; margin: 15px 0; }
-        li { margin: 8px 0; }
-        p { margin: 10px 0; }
-        pre { background: #f5f5f5; border: 2px solid #ccc; border-radius: 8px; overflow-x: auto; margin: 20px 0; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        code { font-family: 'Consolas', 'Courier New', monospace; color: #333333; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
-        code .keyword { color: #0000FF; font-weight: bold; }
-        code .type { color: #2B91AF; }
-        code .string { color: #A31515; }
-        code .comment { color: #008000; }
-        code .number { color: #09885A; }
-        code .attribute { color: #FF4500; }
-        code .operator { color: #000000; }
-        code .punctuation { color: #000000; }
-        .code-explanation { background: #f9f9f9; padding: 15px; border-left: 5px solid #3498db; margin: 15px 0; border-radius: 4px; }
-        .highlight-blue { color: #0000FF; }
-        .highlight-red { color: #FF0000; }
-        .highlight-green { color: #008000; }
-    </style>
-</head>
-<body>
-    <h1>ASP.NET Core - Model Binding & Validation 🎯</h1>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ASP.NET Core - Model Binding & Validation Notes</title>
+		<style>
+			body {
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				padding: 25px 30px;
+				line-height: 1.6;
+				color: #333;
+			}
+			h1 {
+				color: #2c3e50;
+				text-align: center;
+				font-size: 2.5em;
+				margin-bottom: 20px;
+				font-weight: bold;
+			}
+			h2 {
+				color: #34495e;
+				border-bottom: 3px solid #3498db;
+				padding-bottom: 10px;
+				margin: 30px 0 20px;
+				font-size: 2em;
+				font-weight: bold;
+			}
+			h3 {
+				color: #2c3e50;
+				margin: 20px 0 15px;
+				font-size: 1.5em;
+				font-weight: bold;
+			}
+			ul,
+			ol {
+				padding-left: 25px;
+				margin: 15px 0;
+			}
+			li {
+				margin: 8px 0;
+			}
+			p {
+				margin: 10px 0;
+			}
+			pre {
+				background: #f5f5f5;
+				border: 2px solid #ccc;
+				border-radius: 8px;
+				overflow-x: auto;
+				margin: 20px 0;
+				padding: 15px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+			}
+			code {
+				font-family: "Consolas", "Courier New", monospace;
+				color: #333333;
+				font-size: 14px;
+				line-height: 1.6;
+				white-space: pre-wrap;
+			}
+			code .keyword {
+				color: #0000ff;
+				font-weight: bold;
+			}
+			code .type {
+				color: #2b91af;
+			}
+			code .string {
+				color: #a31515;
+			}
+			code .comment {
+				color: #008000;
+			}
+			code .number {
+				color: #09885a;
+			}
+			code .attribute {
+				color: #ff4500;
+			}
+			code .operator {
+				color: #000000;
+			}
+			code .punctuation {
+				color: #000000;
+			}
+			.code-explanation {
+				background: #f9f9f9;
+				padding: 15px;
+				border-left: 5px solid #3498db;
+				margin: 15px 0;
+				border-radius: 4px;
+			}
+			.highlight-blue {
+				color: #0000ff;
+			}
+			.highlight-red {
+				color: #ff0000;
+			}
+			.highlight-green {
+				color: #008000;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="position: absolute; top: 22px; left: 32px; z-index: 10">
+			<a
+				href="index.html"
+				style="
+					display: inline-block;
+					background: #3498db;
+					color: #fff;
+					padding: 8px 22px;
+					border-radius: 6px;
+					text-decoration: none;
+					font-weight: bold;
+					font-size: 1.1em;
+					box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
+					transition: background 0.2s;
+				"
+				>🏠 Home</a
+			>
+		</div>
+		<h1>ASP.NET Core - Model Binding & Validation 🎯</h1>
 
-    <h2>Model Binding 📋</h2>
-    <h3>Model Binding Overview 🔄</h3>
-    <p>Model binding occurs after routing has determined which action method to invoke.</p>
+		<h2>Model Binding 📋</h2>
+		<h3>Model Binding Overview 🔄</h3>
+		<p>
+			Model binding occurs after routing has determined which action
+			method to invoke.
+		</p>
 
-    <h3>Order of Model Binding 🔢</h3>
-    <p>ASP.NET Core model binding follows a specific order when looking for data sources:</p>
-    <ol>
-        <li><strong>Form Data (POST requests)</strong> 📝 - Values submitted through HTML forms (application/x-www-form-urlencoded, multipart/form-data or form-data).</li>
-        <li><strong>Request Body</strong> 📦 - JSON or XML data.</li>
-        <li><strong>Route Data</strong> 🛤️ - Values extracted from the URL route template (e.g./products/{id}).</li>
-        <li><strong>Query String</strong> ❓ - Values appended to the URL after a question mark (?).</li>
-    </ol>
-	<img src="https://img-c.udemycdn.com/redactor/raw/article_lecture/2022-10-22_17-33-22-cfc7b48be0d8550236e2cb304aed72a2.png" width="100%"/>
-    <h3>QueryString vs RouteData ⚖️</h3>
-    <p>- RouteData has higher priority over QueryString.</p>
-    <p>- Use <span class="highlight-red">[FromQuery]</span> vs <span class="highlight-red">[FromRoute]</span>.</p>
-    <pre><code><span class="attribute">[Route(<span class="string">"bookstore/{bookid?}/{isloggedin?}"</span>)]</span> <span class="comment">// Route with optional parameters</span>
+		<h3>Order of Model Binding 🔢</h3>
+		<p>
+			ASP.NET Core model binding follows a specific order when looking for
+			data sources:
+		</p>
+		<ol>
+			<li>
+				<strong>Form Data (POST requests)</strong> 📝 - Values submitted
+				through HTML forms (application/x-www-form-urlencoded,
+				multipart/form-data or form-data).
+			</li>
+			<li><strong>Request Body</strong> 📦 - JSON or XML data.</li>
+			<li>
+				<strong>Route Data</strong> 🛤️ - Values extracted from the URL
+				route template (e.g./products/{id}).
+			</li>
+			<li>
+				<strong>Query String</strong> ❓ - Values appended to the URL
+				after a question mark (?).
+			</li>
+		</ol>
+		<img
+			src="https://img-c.udemycdn.com/redactor/raw/article_lecture/2022-10-22_17-33-22-cfc7b48be0d8550236e2cb304aed72a2.png"
+			width="100%"
+		/>
+		<h3>QueryString vs RouteData ⚖️</h3>
+		<p>- RouteData has higher priority over QueryString.</p>
+		<p>
+			- Use <span class="highlight-red">[FromQuery]</span> vs
+			<span class="highlight-red">[FromRoute]</span>.
+		</p>
+		<pre><code><span class="attribute">[Route(<span class="string">"bookstore/{bookid?}/{isloggedin?}"</span>)]</span> <span class="comment">// Route with optional parameters</span>
 <span class="keyword">public</span> <span class="type">IActionResult</span> Index(<span class="attribute">[FromQuery]</span> <span class="type">int</span>? bookid, <span class="attribute">[FromRoute]</span> <span class="type">bool</span>? isloggedin)
 {
     <span class="comment">// ... (rest of the validation and response logic) ...</span>
 }</code></pre>
-    <div class="code-explanation">In this code:
-        <p><span class="highlight-blue">bookid</span> (<span class="highlight-red">[FromQuery]</span>): The <span class="highlight-green">model binder</span> retrieves the <span class="highlight-blue">bookid</span> value exclusively from the <span class="highlight-red">query string</span>. If absent, it defaults to <span class="highlight-green">null</span> due to the nullable type (<span class="highlight-blue">int?</span>).</p>
-        <p><span class="highlight-blue">isloggedin</span> (<span class="highlight-red">[FromRoute]</span>): The <span class="highlight-green">model binder</span> looks for the <span class="highlight-blue">isloggedin</span> value in the <span class="highlight-red">route data</span>. If absent, it defaults to <span class="highlight-green">null</span> due to the nullable boolean type (<span class="highlight-blue">bool?</span>).</p>
-    </div>
+		<div class="code-explanation">
+			In this code:
+			<p>
+				<span class="highlight-blue">bookid</span> (<span
+					class="highlight-red"
+					>[FromQuery]</span
+				>): The
+				<span class="highlight-green">model binder</span> retrieves the
+				<span class="highlight-blue">bookid</span> value exclusively
+				from the <span class="highlight-red">query string</span>. If
+				absent, it defaults to
+				<span class="highlight-green">null</span> due to the nullable
+				type (<span class="highlight-blue">int?</span>).
+			</p>
+			<p>
+				<span class="highlight-blue">isloggedin</span> (<span
+					class="highlight-red"
+					>[FromRoute]</span
+				>): The <span class="highlight-green">model binder</span> looks
+				for the <span class="highlight-blue">isloggedin</span> value in
+				the <span class="highlight-red">route data</span>. If absent, it
+				defaults to <span class="highlight-green">null</span> due to the
+				nullable boolean type (<span class="highlight-blue">bool?</span
+				>).
+			</p>
+		</div>
 
-    <h3>Complex Model Binding 🧩</h3>
-    <p>Complex models also pick data from route data and query strings (e.g. <span class="highlight-blue">Book</span> <span class="highlight-blue">book</span>).</p>
-    <pre><code><span class="attribute">[Route(<span class="string">"bookstore/{bookid?}/{isloggedin?}"</span>)]</span>
+		<h3>Complex Model Binding 🧩</h3>
+		<p>
+			Complex models also pick data from route data and query strings
+			(e.g. <span class="highlight-blue">Book</span>
+			<span class="highlight-blue">book</span>).
+		</p>
+		<pre><code><span class="attribute">[Route(<span class="string">"bookstore/{bookid?}/{isloggedin?}"</span>)]</span>
 <span class="comment">// Url: /bookstore/1/false?bookid=20&isloggedin=true&author=harsha</span>
 <span class="keyword">public</span> <span class="type">IActionResult</span> Index(<span class="attribute">[FromQuery]</span> <span class="type">int</span>? bookid, <span class="attribute">[FromRoute]</span> <span class="type">bool</span>? isloggedin, <span class="type">Book</span> book)
 {
     <span class="comment">// ... validation and response logic ...</span>
     <span class="keyword">return</span> Content($<span class="string">"Book id: {bookid}, Book: {book}"</span>, <span class="string">"text/plain"</span>); 
 }</code></pre>
-    <div class="code-explanation">In this code:
-        <p><span class="highlight-red">Model Class Parameter</span>: The <span class="highlight-blue">Index</span> action method includes a <span class="highlight-green">book</span> parameter of type <span class="highlight-blue">Book</span>.</p>
-        <p><span class="highlight-red">[FromQuery] Attribute</span>: The <span class="highlight-blue">BookId</span> property of the <span class="highlight-blue">Book</span> class uses <span class="highlight-red">[FromQuery]</span>, indicating its value is sourced from the <span class="highlight-red">query string</span>.</p>
-        <p><span class="highlight-red">Automatic Binding</span>: For a request like <span class="highlight-blue">/bookstore/1/false?bookid=20&isloggedin=true&author=harsha</span>: <span class="highlight-green">bookid (int?)</span> is set to <span class="highlight-blue">20</span> (from the query string via <span class="highlight-red">[FromQuery]</span>). <span class="highlight-green">isloggedin (bool?)</span> is set to <span class="highlight-blue">true</span> (from route data via <span class="highlight-red">[FromRoute]</span>). <span class="highlight-green">book.Author (string?)</span> is set to "<span class="highlight-blue">harsha</span>" (from the query string, as no attribute specifies otherwise).</p>
-    </div>
+		<div class="code-explanation">
+			In this code:
+			<p>
+				<span class="highlight-red">Model Class Parameter</span>: The
+				<span class="highlight-blue">Index</span> action method includes
+				a <span class="highlight-green">book</span> parameter of type
+				<span class="highlight-blue">Book</span>.
+			</p>
+			<p>
+				<span class="highlight-red">[FromQuery] Attribute</span>: The
+				<span class="highlight-blue">BookId</span> property of the
+				<span class="highlight-blue">Book</span> class uses
+				<span class="highlight-red">[FromQuery]</span>, indicating its
+				value is sourced from the
+				<span class="highlight-red">query string</span>.
+			</p>
+			<p>
+				<span class="highlight-red">Automatic Binding</span>: For a
+				request like
+				<span class="highlight-blue"
+					>/bookstore/1/false?bookid=20&isloggedin=true&author=harsha</span
+				>: <span class="highlight-green">bookid (int?)</span> is set to
+				<span class="highlight-blue">20</span> (from the query string
+				via <span class="highlight-red">[FromQuery]</span>).
+				<span class="highlight-green">isloggedin (bool?)</span> is set
+				to <span class="highlight-blue">true</span> (from route data via
+				<span class="highlight-red">[FromRoute]</span>).
+				<span class="highlight-green">book.Author (string?)</span> is
+				set to "<span class="highlight-blue">harsha</span>" (from the
+				query string, as no attribute specifies otherwise).
+			</p>
+		</div>
 
-    <h3>Binding from Request Body 📥</h3>
-    <p>You can bind complex objects from JSON or XML data in request bodies (using <span class="highlight-red">[FromBody]</span>).</p>
-    <pre><code><span class="attribute">[Route(<span class="string">"register"</span>)]</span>
+		<h3>Binding from Request Body 📥</h3>
+		<p>
+			You can bind complex objects from JSON or XML data in request bodies
+			(using <span class="highlight-red">[FromBody]</span>).
+		</p>
+		<pre><code><span class="attribute">[Route(<span class="string">"register"</span>)]</span>
 <span class="comment">// Example JSON: { "PersonName": "William", "Email": "william@example.com", "Phone": "123456", "Password": "william123", "ConfirmPassword": "william123" }</span>
 <span class="keyword">public</span> <span class="type">IActionResult</span> Index(<span class="attribute">[FromBody]</span> <span class="type">Person</span> person)
 {
@@ -85,22 +255,52 @@
  
     <span class="keyword">return</span> Content(<span class="string">$"{person}"</span>); 
 }</code></pre>
-    <div class="code-explanation">In this code:
-        <p><span class="highlight-red">[FromBody] Attribute</span>: The <span class="highlight-red">[FromBody]</span> attribute on the <span class="highlight-green">person</span> parameter directs the <span class="highlight-green">model binder</span> to extract data from the <span class="highlight-red">request body</span>.</p>
-        <p><span class="highlight-red">JSON Deserialization</span>: With a <span class="highlight-blue">Content-Type</span> of <span class="highlight-red">application/json</span>, the <span class="highlight-green">JSON input formatter</span> deserializes the request body into a <span class="highlight-blue">Person</span> object.</p>
-        <p><span class="highlight-red">Model Validation</span>: The <span class="highlight-blue">ModelState.IsValid</span> check ensures the deserialized <span class="highlight-green">Person</span> object meets validation criteria.</p>
-        <p><span class="highlight-red">Successful Response</span>: If valid, the <span class="highlight-blue">Content</span> result returns a string representation of the <span class="highlight-green">Person</span> object.</p>
-    </div>
+		<div class="code-explanation">
+			In this code:
+			<p>
+				<span class="highlight-red">[FromBody] Attribute</span>: The
+				<span class="highlight-red">[FromBody]</span> attribute on the
+				<span class="highlight-green">person</span> parameter directs
+				the <span class="highlight-green">model binder</span> to extract
+				data from the <span class="highlight-red">request body</span>.
+			</p>
+			<p>
+				<span class="highlight-red">JSON Deserialization</span>: With a
+				<span class="highlight-blue">Content-Type</span> of
+				<span class="highlight-red">application/json</span>, the
+				<span class="highlight-green">JSON input formatter</span>
+				deserializes the request body into a
+				<span class="highlight-blue">Person</span> object.
+			</p>
+			<p>
+				<span class="highlight-red">Model Validation</span>: The
+				<span class="highlight-blue">ModelState.IsValid</span> check
+				ensures the deserialized
+				<span class="highlight-green">Person</span> object meets
+				validation criteria.
+			</p>
+			<p>
+				<span class="highlight-red">Successful Response</span>: If
+				valid, the <span class="highlight-blue">Content</span> result
+				returns a string representation of the
+				<span class="highlight-green">Person</span> object.
+			</p>
+		</div>
 
-    <h2>Model Validation ✅</h2>
-    <h3>Model Validation Overview 🧪</h3>
-    <p>Ensure data integrity using:</p>
-    <ul>
-        <li><strong>Use Data Annotations</strong></li>
-        <li><strong>Custom Validation</strong></li>
-        <li><strong>Model State</strong>: Always check the <span class="highlight-blue">ModelState.IsValid</span> property in your controller actions before processing data. Return an appropriate error response if invalid.</li>
-    </ul>
-    <pre><code><span class="comment">// Person.cs (Model)</span>
+		<h2>Model Validation ✅</h2>
+		<h3>Model Validation Overview 🧪</h3>
+		<p>Ensure data integrity using:</p>
+		<ul>
+			<li><strong>Use Data Annotations</strong></li>
+			<li><strong>Custom Validation</strong></li>
+			<li>
+				<strong>Model State</strong>: Always check the
+				<span class="highlight-blue">ModelState.IsValid</span> property
+				in your controller actions before processing data. Return an
+				appropriate error response if invalid.
+			</li>
+		</ul>
+		<pre><code><span class="comment">// Person.cs (Model)</span>
 <span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Person</span>
 {
     <span class="comment">// ... other properties</span>
@@ -123,15 +323,37 @@
  
     <span class="comment">// Model is valid, proceed with saving data</span>
 }</code></pre>
-    <div class="code-explanation">In this code:
-        <p><span class="highlight-green">Data Annotations</span>: The <span class="highlight-blue">Person</span> model employs <span class="highlight-red">data annotations</span> like <span class="highlight-red">[Required]</span>, <span class="highlight-red">[Compare]</span>, and <span class="highlight-red">[Display]</span> to enforce validation rules.</p>
-        <p><span class="highlight-green">Model State Check</span>: The controller action verifies <span class="highlight-blue">ModelState.IsValid</span>. If <span class="highlight-green">false</span>, it re-renders the view with the model, including validation errors for user correction.</p>
-        <p><span class="highlight-green">Error Display</span>: Views use <span class="highlight-blue">@Html.ValidationSummary()</span> and <span class="highlight-blue">@Html.ValidationMessageFor()</span> helpers to display error messages.</p>
-    </div>
+		<div class="code-explanation">
+			In this code:
+			<p>
+				<span class="highlight-green">Data Annotations</span>: The
+				<span class="highlight-blue">Person</span> model employs
+				<span class="highlight-red">data annotations</span> like
+				<span class="highlight-red">[Required]</span>,
+				<span class="highlight-red">[Compare]</span>, and
+				<span class="highlight-red">[Display]</span> to enforce
+				validation rules.
+			</p>
+			<p>
+				<span class="highlight-green">Model State Check</span>: The
+				controller action verifies
+				<span class="highlight-blue">ModelState.IsValid</span>. If
+				<span class="highlight-green">false</span>, it re-renders the
+				view with the model, including validation errors for user
+				correction.
+			</p>
+			<p>
+				<span class="highlight-green">Error Display</span>: Views use
+				<span class="highlight-blue">@Html.ValidationSummary()</span>
+				and
+				<span class="highlight-blue">@Html.ValidationMessageFor()</span>
+				helpers to display error messages.
+			</p>
+		</div>
 
-    <h3>Custom Validation with ValidationAttribute 🔧</h3>
-    <p>Create custom validation logic.</p>
-    <pre><code><span class="keyword">class</span> MyValidation : <span class="type">ValidationAttribute</span>
+		<h3>Custom Validation with ValidationAttribute 🔧</h3>
+		<p>Create custom validation logic.</p>
+		<pre><code><span class="keyword">class</span> MyValidation : <span class="type">ValidationAttribute</span>
 {
     <span class="keyword">public</span> <span class="keyword">override</span> <span class="type">ValidationResult</span>? IsValid(<span class="type">object</span>? value, <span class="type">ValidationContext</span> context)
     {
@@ -176,12 +398,29 @@
         <span class="keyword">return</span> <span class="keyword">null</span>;  <span class="comment">// Return null if value is null</span>
     }
 }</code></pre>
-    <div class="code-explanation">In this code:
-        <p><span class="highlight-red">Purpose</span>: Ensures <span class="highlight-blue">toDate</span> is not earlier than <span class="highlight-blue">fromDate</span>.</p>
-        <p><span class="highlight-green">OtherPropertyName</span>: Specifies the property to compare against (e.g., <span class="highlight-blue">fromDate</span>).</p>
-        <p><span class="highlight-red">IsValid Method</span>: Retrieves both property values using <span class="highlight-green">reflection</span>. Compares the dates, returning an error if <span class="highlight-blue">fromDate</span> is greater than <span class="highlight-blue">toDate</span>. Includes property names in the error message for clear user feedback.</p>
-    </div>
-    <pre><code><span class="keyword">public</span> <span class="keyword">class</span> MinimumYearValidatorAttribute : <span class="type">ValidationAttribute</span>
+		<div class="code-explanation">
+			In this code:
+			<p>
+				<span class="highlight-red">Purpose</span>: Ensures
+				<span class="highlight-blue">toDate</span> is not earlier than
+				<span class="highlight-blue">fromDate</span>.
+			</p>
+			<p>
+				<span class="highlight-green">OtherPropertyName</span>:
+				Specifies the property to compare against (e.g.,
+				<span class="highlight-blue">fromDate</span>).
+			</p>
+			<p>
+				<span class="highlight-red">IsValid Method</span>: Retrieves
+				both property values using
+				<span class="highlight-green">reflection</span>. Compares the
+				dates, returning an error if
+				<span class="highlight-blue">fromDate</span> is greater than
+				<span class="highlight-blue">toDate</span>. Includes property
+				names in the error message for clear user feedback.
+			</p>
+		</div>
+		<pre><code><span class="keyword">public</span> <span class="keyword">class</span> MinimumYearValidatorAttribute : <span class="type">ValidationAttribute</span>
 {
     <span class="keyword">public</span> <span class="type">int</span> MinimumYear { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="number">2000</span>;
     <span class="keyword">public</span> <span class="type">string</span> DefaultErrorMessage { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="string">"Year should not be less than {0}"</span>;
@@ -204,16 +443,32 @@
         <span class="keyword">return</span> <span class="keyword">null</span>;
     }
 }</code></pre>
-    <div class="code-explanation">In this code:
-        <p><span class="highlight-red">Purpose</span>: Ensures <span class="highlight-blue">DateOfBirth</span> is not earlier than a specified year.</p>
-        <p><span class="highlight-green">MinimumYear</span>: Sets the minimum allowed year (defaults to <span class="highlight-blue">2000</span>).</p>
-        <p><span class="highlight-green">DefaultErrorMessage</span>: Provides a default error message if no custom message is set.</p>
-        <p><span class="highlight-red">IsValid Method</span>: Checks if the date's year meets or exceeds the <span class="highlight-blue">MinimumYear</span>.</p>
-    </div>
+		<div class="code-explanation">
+			In this code:
+			<p>
+				<span class="highlight-red">Purpose</span>: Ensures
+				<span class="highlight-blue">DateOfBirth</span> is not earlier
+				than a specified year.
+			</p>
+			<p>
+				<span class="highlight-green">MinimumYear</span>: Sets the
+				minimum allowed year (defaults to
+				<span class="highlight-blue">2000</span>).
+			</p>
+			<p>
+				<span class="highlight-green">DefaultErrorMessage</span>:
+				Provides a default error message if no custom message is set.
+			</p>
+			<p>
+				<span class="highlight-red">IsValid Method</span>: Checks if the
+				date's year meets or exceeds the
+				<span class="highlight-blue">MinimumYear</span>.
+			</p>
+		</div>
 
-    <h3>Validate the Model by implementing IValidateObject 🛠️</h3>
-    <p>Implement custom validation logic.</p>
-    <pre><code><span class="comment">// Person.cs (Model)</span>
+		<h3>Validate the Model by implementing IValidateObject 🛠️</h3>
+		<p>Implement custom validation logic.</p>
+		<pre><code><span class="comment">// Person.cs (Model)</span>
 <span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Person</span> : <span class="type">IValidatableObject</span>
 {
     <span class="comment">// ... (properties with data annotations) ...</span>
@@ -231,30 +486,71 @@
         }
     }
 }</code></pre>
-    <div class="code-explanation">In this code:
-        <p><span class="highlight-red">Implementation of IValidatableObject</span>: The <span class="highlight-blue">Person</span> class implements the <span class="highlight-green">IValidatableObject</span> interface.</p>
-        <p><span class="highlight-red">Validate Method</span>: Checks if either <span class="highlight-blue">DateOfBirth</span> or <span class="highlight-blue">Age</span> is provided; yields an error if neither is present. Uses <span class="highlight-green">new[] { nameof(Age) }</span> to associate the error with the <span class="highlight-blue">Age</span> property for targeted display in the view.</p>
-        <p><span class="highlight-red">Model State Update</span>: Validation errors are added to <span class="highlight-green">ModelState</span>, allowing <span class="highlight-blue">ModelState.IsValid</span> to assess model validity.</p>
-    </div>
+		<div class="code-explanation">
+			In this code:
+			<p>
+				<span class="highlight-red"
+					>Implementation of IValidatableObject</span
+				>: The <span class="highlight-blue">Person</span> class
+				implements the
+				<span class="highlight-green">IValidatableObject</span>
+				interface.
+			</p>
+			<p>
+				<span class="highlight-red">Validate Method</span>: Checks if
+				either <span class="highlight-blue">DateOfBirth</span> or
+				<span class="highlight-blue">Age</span> is provided; yields an
+				error if neither is present. Uses
+				<span class="highlight-green">new[] { nameof(Age) }</span> to
+				associate the error with the
+				<span class="highlight-blue">Age</span> property for targeted
+				display in the view.
+			</p>
+			<p>
+				<span class="highlight-red">Model State Update</span>:
+				Validation errors are added to
+				<span class="highlight-green">ModelState</span>, allowing
+				<span class="highlight-blue">ModelState.IsValid</span> to assess
+				model validity.
+			</p>
+		</div>
 
-    <h2>[FromHeader] Usage 📡</h2>
-    <h3>Why Use [FromHeader]? 🔍</h3>
-    <p>Reasons to use [FromHeader]:</p>
-    <ul>
-        <li><strong>Access to Metadata</strong>: HTTP headers provide valuable client, request, and data transmission information.</li>
-        <li><strong>Custom Parameters</strong>: Define custom headers to pass additional API data.</li>
-        <li><strong>Security</strong>: Headers often transmit authentication tokens and security details.</li>
-        <li><strong>Content Negotiation</strong>: Headers like Accept determine the preferred response format (e.g., JSON, XML).</li>
-    </ul>
-    <pre><code><span class="attribute">[Route(<span class="string">"register"</span>)]</span>
+		<h2>[FromHeader] Usage 📡</h2>
+		<h3>Why Use [FromHeader]? 🔍</h3>
+		<p>Reasons to use [FromHeader]:</p>
+		<ul>
+			<li>
+				<strong>Access to Metadata</strong>: HTTP headers provide
+				valuable client, request, and data transmission information.
+			</li>
+			<li>
+				<strong>Custom Parameters</strong>: Define custom headers to
+				pass additional API data.
+			</li>
+			<li>
+				<strong>Security</strong>: Headers often transmit authentication
+				tokens and security details.
+			</li>
+			<li>
+				<strong>Content Negotiation</strong>: Headers like Accept
+				determine the preferred response format (e.g., JSON, XML).
+			</li>
+		</ul>
+		<pre><code><span class="attribute">[Route(<span class="string">"register"</span>)]</span>
 <span class="keyword">public</span> <span class="type">IActionResult</span> Index(<span class="type">Person</span> person, <span class="attribute">[FromHeader</span>(Name = <span class="string">"User-Agent"</span>)] <span class="type">string</span> UserAgent)
 {
     <span class="comment">// ... (model validation logic) ...</span>
  
     <span class="keyword">return</span> Content(<span class="string">$"{person}, {UserAgent}"</span>); <span class="comment">// Include User-Agent in the response</span>
 }</code></pre>
-    <div class="code-explanation">In this code:
-        <p>The <span class="highlight-green">model binder</span> extracts the <span class="highlight-blue">User-Agent</span> header value from the request and assigns it to the <span class="highlight-red">UserAgent</span> parameter.</p>
-    </div>
-</body>
+		<div class="code-explanation">
+			In this code:
+			<p>
+				The <span class="highlight-green">model binder</span> extracts
+				the <span class="highlight-blue">User-Agent</span> header value
+				from the request and assigns it to the
+				<span class="highlight-red">UserAgent</span> parameter.
+			</p>
+		</div>
+	</body>
 </html>

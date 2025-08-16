@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASP.NET Core - Middleware Notes</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px 30px; line-height: 1.6; color: #333; }
+        h1 { color: #2c3e50; text-align: center; font-size: 2.5em; margin-bottom: 20px; font-weight: bold; }
+        h2 { color: #34495e; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin: 30px 0 20px; font-size: 2em; font-weight: bold; }
+        h3 { color: #2c3e50; margin: 20px 0 15px; font-size: 1.5em; font-weight: bold; }
+        h4 { color: #2c3e50; margin: 15px 0 10px; font-size: 1.2em; font-weight: normal; }
+        ul, ol { padding-left: 25px; margin: 15px 0; }
+        li { margin: 8px 0; }
+        p { margin: 10px 0; }
+        pre { background: #f5f5f5; border: 2px solid #ccc; border-radius: 8px; overflow-x: auto; margin: 20px 0; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        code { font-family: 'Consolas', 'Courier New', monospace; color: #333333; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        code .keyword { color: #0000FF; }
+        code .type { color: #2B91AF; }
+        code .string { color: #A31515; }
+        code .comment { color: #008000; }
+        code .number { color: #09885A; }
+        code .attribute { color: #FF4500; }
+        code .operator { color: #000000; }
+        code .punctuation { color: #000000; }
+        .code-explanation { background: #f9f9f9; padding: 15px; border-left: 5px solid #3498db; margin: 15px 0; border-radius: 4px; }
+        .highlight-blue { color: #0000FF; }
+        .highlight-red { color: #FF0000; }
+        .highlight-green { color: #008000; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #34495e; color: white; }
+    </style>
+</head>
+<body>
+	<div style="position: absolute; top: 22px; left: 32px; z-index: 10;">
+        <a href="index.html" style="display:inline-block; background:#3498db; color:#fff; padding:8px 22px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:1.1em; box-shadow:0 2px 8px rgba(52,152,219,0.08); transition:background 0.2s;">🏠 Home</a>
+    </div>
+    <h1>ASP.NET Core - Middleware 🛠️</h1>
+
+    <h2>Middleware Overview 🛠️</h2>
+    <p>At its core, middleware in ASP.NET Core is a series of components that form a pipeline through which every HTTP request and response flows. Each middleware component can:</p>
+    <ul>
+        <li>Examine 🔍 the incoming request.</li>
+        <li>Modify ✏️ the request or response (if needed).</li>
+        <li>Invoke 🔄 the next middleware in the pipeline or short-circuit the process and generate a response itself.</li>
+    </ul>
+    <p>This pipeline allows you to modularize your application.</p>
+
+    <p><b>Middleware Chain (Request Pipeline)</b></p>
+    <img src="https://img-c.udemycdn.com/redactor/raw/article_lecture/2022-10-21_15-14-18-9bdce0caa94100bca78cef28712c8a95.png" width=100%>
+
+    <h2>app.Use vs. app.Run ⚙️</h2>
+    <table>
+        <tr><th>Aspect 🌟</th><th>app.Use 🔄</th><th>app.Run 🚦</th></tr>
+        <tr><td>Type 🎯</td><td>Non-terminal middleware.</td><td>Terminal middleware.</td></tr>
+        <tr><td>Next Delegate 📍</td><td>Calls next to pass control to the next middleware.</td><td>Does not call next; ends the pipeline.</td></tr>
+        <tr><td>Modification Capability 🚧</td><td>Can modify request/response before passing control.</td><td>Cannot modify request; generates final response.</td></tr>
+        <tr><td>Usage Scenario 🛠️</td><td>Used for tasks like authentication or logging.</td><td>Used for final response generation.</td></tr>
+        <tr><td>Pipeline Behavior 🕒</td><td>Continues the pipeline after execution. ✅</td><td>Terminates the pipeline. 🚫</td></tr>
+    </table>
+    <h4>Code 1: The Consequence of Multiple app.Run Calls 🛑</h4>
+    <pre><code>
+<span class="keyword">app</span>.<span class="attribute">Run</span>(<span class="keyword">async</span> (<span class="type">HttpContext</span> context) => { <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"Hello"</span>); });
+<span class="keyword">app</span>.<span class="attribute">Run</span>(<span class="keyword">async</span> (<span class="type">HttpContext</span> context) => { <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"Hello again"</span>); });
+<span class="keyword">app</span>.<span class="attribute">Run</span>();
+    </code></pre>
+    <div class="code-explanation">In this code:  
+        <p><span class="highlight-red">First app.Run</span>: The first <span class="highlight-blue">app.Run</span> middleware executes and terminates the pipeline by writing <span class="highlight-green">"Hello"</span> to the response.</p>  
+        <p><span class="highlight-red">Subsequent app.Run Calls</span>: The subsequent <span class="highlight-blue">app.Run</span> calls (e.g., writing <span class="highlight-green">"Hello again"</span>) are never executed because the pipeline is already terminated.</p>  
+    </div>
+
+    <h4>Code 2: Chaining Middleware with app.Use and app.Run 🔗</h4>
+    <pre><code>
+<span class="comment">// Middleware 1</span>
+<span class="keyword">app</span>.<span class="attribute">Use</span>(<span class="keyword">async</span> (context, next) => { 
+    <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"Hello "</span>); 
+    <span class="keyword">await</span> next(context); 
+}); 
+<span class="comment">// Middleware 2 </span>
+<span class="keyword">app</span>.<span class="attribute">Use</span>(<span class="keyword">async</span> (context, next) => { 
+    <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"Hello again "</span>); 
+    <span class="keyword">await</span> next(context); 
+});
+<span class="comment">// Middleware 3</span>
+<span class="keyword">app</span>.<span class="attribute">Run</span>(<span class="keyword">async</span> (<span class="type">HttpContext</span> context) => { 
+    <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"Hello again"</span>); 
+});
+    </code></pre>
+    <div class="code-explanation">In this code:  
+        <p><span class="highlight-red">First app.Use</span>: The first <span class="highlight-blue">app.Use</span> writes <span class="highlight-green">"Hello "</span> to the response and calls <span class="highlight-blue">next</span> to pass control.</p>  
+        <p><span class="highlight-red">Second app.Use</span>: The second <span class="highlight-blue">app.Use</span> writes <span class="highlight-green">"Hello again "</span> and calls <span class="highlight-blue">next</span>.</p>  
+        <p><span class="highlight-red">Final app.Run</span>: The <span class="highlight-blue">app.Run</span> (terminal) writes <span class="highlight-green">"Hello again"</span> and ends the pipeline.</p>  
+        <p><span class="highlight-red">Result</span>: Output of <span class="highlight-green">"Hello Hello again Hello again"</span>.</p>  
+    </div>
+
+    <h3>Key Points to Remember 📌</h3>
+    <ul>
+        <li><strong>Middleware Order is Crucial</strong> 🔀: The order in which you register middleware matters, as they are executed in sequence.</li>
+        <li><strong>Use app.Use for Non-Terminal Actions</strong> 🔄: Use it for tasks like authentication, logging, or modifying headers/bodies.</li>
+        <li><strong>Use app.Run to Terminate the Pipeline</strong> 🏁: Employ it when you want to generate the final response.</li>
+        <li><strong>Short-Circuiting</strong> 🚦: Middleware can choose to short-circuit the pipeline (not call next) and return a response early if needed.</li>
+    </ul>
+
+    <h2>The Right Order of Middleware</h2>
+    <p>To ensure proper functionality, middleware in ASP.NET Core should be registered in a specific order. Below is a recommended sequence:</p>
+    <ol>
+        <li><span class="highlight-blue">app.UseExceptionHandler("/Error");</span>        // Handle exceptions first 🚨</li>
+        <li><span class="highlight-blue">app.UseHsts();</span>                           // Enforce HTTPS 🔒</li>
+        <li><span class="highlight-blue">app.UseHttpsRedirection();</span>               // Redirect HTTP to HTTPS 🔄</li>
+        <li><span class="highlight-blue">app.UseStaticFiles();</span>                    // Serve static files 📁</li>
+        <li><span class="highlight-blue">app.UseRouting();</span>                        // Enable routing 🛤️</li>
+        <li><span class="highlight-blue">app.UseCors();</span>                           // Enable CORS 🌐</li>
+        <li><span class="highlight-blue">app.UseAuthentication();</span>                 // Authenticate users 🔑</li>
+        <li><span class="highlight-blue">app.UseAuthorization();</span>                  // Authorize access 🔍</li>
+        <li><span class="highlight-blue">app.UseSession();</span>                        // Manage session state 🗃️</li>
+        <li><span class="highlight-blue">app.MapControllers();</span>                    // Map controller endpoints 🎮</li>        
+        <li><span class="highlight-blue">app.Run();</span>                               // Terminate the pipeline 🏁</li>
+    </ol>
+    <img src="https://img-c.udemycdn.com/redactor/raw/article_lecture/2022-10-21_15-14-19-214781bd8fcd09070416084d4cce5d38.png" width=100% />
+
+    <h2>Custom Middleware 🛠️</h2>
+    <p>While ASP.NET Core provides a plethora of built-in middleware components, sometimes you need to create your own to address specific requirements unique to your application. Custom middleware allows you to:</p>
+    <ul>
+        <li>Encapsulate logic 📦: Bundle related operations (e.g., logging, security checks, custom headers) into a reusable component.</li>
+        <li>Customize behavior 🎨: Tailor the request/response pipeline to precisely match your application's needs.</li>
+        <li>Improve code organization 🧹: Keep your middleware code clean and maintainable.</li>
+    </ul>
+
+    <h4>Custom Middleware Implementing IMiddleware</h4>
+    <p><strong>IMiddleware</strong>: This interface requires a single method: <code>InvokeAsync(HttpContext context, RequestDelegate next)</code>. This is the heart of your middleware's logic.</p>
+    <p><strong>InvokeAsync or Invoke Method</strong>:</p>
+    <ul>
+        <li><code>context</code>: The HttpContext provides access to the request and response objects.</li>
+        <li><code>next</code>: The RequestDelegate allows you to call the next middleware in the pipeline.</li>
+    </ul>
+
+    <pre><code>
+<span class="comment">// MyCustomMiddleware.cs</span>
+<span class="keyword">namespace</span> MiddlewareExample.CustomMiddleware
+{
+    <span class="keyword">public class</span> <span class="type">MyCustomMiddleware</span> : <span class="type">IMiddleware</span>  
+    {
+        <span class="keyword">public async Task</span> InvokeAsync(<span class="type">HttpContext</span> context, <span class="type">RequestDelegate</span> next)
+        {
+            <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"My Custom Middleware - Starts\n"</span>);
+            <span class="keyword">await</span> next(context);  
+            <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"My Custom Middleware - Ends\n"</span>);
+        }
+    }
+ 
+    <span class="comment">// Extension method for easy registration</span>
+    <span class="keyword">public static class</span> <span class="type">CustomMiddlewareExtension</span>
+    {
+        <span class="keyword">public static</span> <span class="type">IApplicationBuilder</span> UseMyCustomMiddleware(<span class="keyword">this</span> <span class="type">IApplicationBuilder</span> app)
+        {
+            <span class="keyword">return</span> app.<span class="attribute">UseMiddleware</span>();
+        }
+    }
+</code></pre>
+    <div class="code-explanation">In this code:  
+        <p><span class="highlight-red">MyCustomMiddleware Class</span>: This class implements IMiddleware. Its <span class="highlight-blue">InvokeAsync</span> method:</p>  
+        <p><span class="highlight-green">Writes</span> <span class="highlight-blue">"My Custom Middleware - Starts"</span> to the response.</p>  
+        <p><span class="highlight-green">Calls</span> <span class="highlight-blue">next(context)</span> to invoke the next middleware in the pipeline.</p>  
+        <p><span class="highlight-green">Writes</span> <span class="highlight-blue">"My Custom Middleware - Ends"</span> to the response after the next middleware has finished.</p>  
+        <p><span class="highlight-red">CustomMiddlewareExtension Class</span>: This provides a convenient extension method <span class="highlight-blue">UseMyCustomMiddleware</span> to register your middleware in the <span class="highlight-blue">Startup.Configure</span> method.</p>  
+    </div>
+
+    <h4>How It Works 🚀</h4>
+    <ul>
+        <li><strong>Registration</strong>: You register <span class="highlight-blue">MyCustomMiddleware</span> as a transient service so that ASP.NET Core can create instances of it when needed.</li>
+        <li><strong>Pipeline Integration</strong>: The <span class="highlight-blue">app.UseMyCustomMiddleware()</span> extension method seamlessly adds your middleware to the pipeline.</li>
+        <li><strong>Execution Order</strong>: Middleware components are executed in the order they are added to the pipeline. In this case, the order would be <span class="highlight-blue">MyCustomMiddleware</span>, then <span class="highlight-blue">Middleware 3</span>.</li>
+    </ul>
+
+    <pre><code>
+<span class="comment">// Program.cs (or Startup.cs)</span>
+<span class="keyword">using</span> MiddlewareExample.CustomMiddleware;
+ 
+// ...
+ 
+builder.<span class="type">Services</span>.<span class="attribute">AddTransient</span>(); <span class="comment">// Register as transient</span>
+ 
+app.<span class="attribute">UseMyCustomMiddleware</span>(); <span class="comment">// Use the extension method</span>
+ 
+app.<span class="attribute">Run</span>(<span class="keyword">async</span> (<span class="type">HttpContext</span> context) => {
+    <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"From Middleware 3\n"</span>);
+});
+</code></pre>
+    <div class="code-explanation">In this code:  
+        <p><span class="highlight-red">Registration</span>: The middleware is registered using <span class="highlight-blue">builder.Services.AddTransient()</span>.</p>  
+        <p><span class="highlight-red">Pipeline Integration</span>: The <span class="highlight-blue">app.UseMyCustomMiddleware()</span> method integrates it into the pipeline.</p>  
+        <p><span class="highlight-red">Execution</span>: The final <span class="highlight-blue">app.Run</span> outputs <span class="highlight-green">"From Middleware 3"</span>.</p>  
+    </div>
+
+    <h4>Output 🎉</h4>
+    <div class="code-explanation">Output:  
+        <p><span class="highlight-red">My Custom Middleware - Starts</span>: This is the initial response from the custom middleware.</p>  
+        <p><span class="highlight-red">From Middleware 3</span>: This is the response generated by the terminal middleware.</p>  
+        <p><span class="highlight-red">My Custom Middleware - Ends</span>: This is the final response added by the custom middleware after the pipeline completes.</p>  
+    </div>
+
+    <h4>Custom Conventional Middleware 🛠️</h4>
+    <ul>
+        <li>Class-Based: Conventional middleware is implemented as a class.</li>
+        <li>Constructor Injection: It receives dependencies (if any) through its constructor.</li>
+        <li>Invoke Method: This is the heart of the middleware, containing the logic that handles each request.</li>
+        <li>RequestDelegate: The Invoke method takes a RequestDelegate parameter (_next in your example). This delegate represents the next middleware in the pipeline.</li>
+    </ul>
+
+    <pre><code>
+<span class="comment">// HelloCustomMiddleware.cs</span>
+<span class="keyword">public class</span> <span class="type">HelloCustomMiddleware</span>
+{
+    <span class="keyword">private readonly</span> <span class="type">RequestDelegate</span> <span class="attribute">_next</span>;
+ 
+    <span class="keyword">public</span> <span class="type">HelloCustomMiddleware</span>(<span class="type">RequestDelegate</span> next)
+    {
+        <span class="attribute">_next</span> = next;
+    }
+ 
+    <span class="keyword">public async Task</span> <span class="type">Invoke</span>(<span class="type">HttpContext</span> httpContext)
+    {
+        <span class="keyword">if</span> (httpContext.Request.Query.ContainsKey(<span class="string">"firstname"</span>) && 
+            httpContext.Request.Query.ContainsKey(<span class="string">"lastname"</span>))
+        {
+            <span class="type">string</span> fullName = httpContext.Request.Query[<span class="string">"firstname"</span>] + <span class="string">" "</span> + httpContext.Request.Query[<span class="string">"lastname"</span>];
+            <span class="keyword">await</span> httpContext.Response.WriteAsync(fullName);
+        }
+        <span class="keyword">await</span> <span class="attribute">_next</span>(httpContext); 
+    }
+}
+ 
+<span class="comment">// Extension method for easy registration</span>
+<span class="keyword">public static class</span> <span class="type">HelloCustomModdleExtensions</span>
+{
+    <span class="keyword">public static</span> <span class="type">IApplicationBuilder</span> UseHelloCustomMiddleware(<span class="keyword">this</span> <span class="type">IApplicationBuilder</span> builder)
+    {
+        <span class="keyword">return</span> builder.UseMiddleware();
+    }
+}
+    </code></pre>
+    <div class="code-explanation">In this code:  
+        <p><span class="highlight-red">HelloCustomMiddleware Class</span>: This class implements conventional middleware with a constructor that injects the <span class="highlight-blue">RequestDelegate</span> (_next).</p>  
+        <p><span class="highlight-red">Constructor Injection</span>: The <span class="highlight-blue">RequestDelegate _next</span> is injected to allow passing control to the next middleware.</p>  
+        <p><span class="highlight-red">Invoke Method</span>: The <span class="highlight-blue">Invoke</span> method checks for query parameters <span class="highlight-green">"firstname"</span> and <span class="highlight-green">"lastname"</span>, concatenates them into a full name, and writes it to the response if present. It then calls <span class="highlight-blue">_next(httpContext)</span> to continue the pipeline.</p>  
+        <p><span class="highlight-red">HelloCustomModdleExtensions Class</span>: This provides an extension method <span class="highlight-blue">UseHelloCustomMiddleware</span> to register the middleware in the pipeline.</p>  
+    </div>
+
+    <h2>Comparison: IMiddleware vs Conventional Middleware</h2>
+    <table>
+        <tr><th>Aspect</th><th>IMiddleware (Factory-based Middleware)</th><th>Conventional Middleware</th></tr>
+        <tr><td>Definition</td><td>Implements the <span class="highlight-blue">IMiddleware</span> interface and is resolved via <span class="highlight-blue">dependency injection (DI)</span> container</td><td>Implements a class with a constructor accepting <span class="highlight-red">RequestDelegate</span>, invoked <span class="highlight-red">directly</span></td></tr>
+        <tr><td>Activation</td><td>Activated <span class="highlight-blue">per request</span> using <span class="highlight-blue">IMiddlewareFactory</span>, allowing <span class="highlight-blue">scoped service injection</span></td><td>Activated <span class="highlight-red">once during app startup</span>; constructor runs <span class="highlight-red">once</span> and uses <span class="highlight-red">shared dependencies</span></td></tr>
+        <tr><td>Dependency Injection</td><td>Supports <span class="highlight-blue">full DI</span>, including <span class="highlight-blue">scoped</span> and <span class="highlight-blue">transient services</span></td><td>Limited <span class="highlight-red">DI</span>; constructor injection only supports <span class="highlight-red">singleton services</span></td></tr>
+        <tr><td>Registration</td><td>Must be registered in <span class="highlight-blue">ConfigureServices</span> using <span class="highlight-blue">services.AddTransient<T>()</span> or similar</td><td>No need to register in <span class="highlight-red">DI</span>; added <span class="highlight-red">directly</span> to pipeline using <span class="highlight-red">app.UseMiddleware<T>()</span></td></tr>
+        <tr><td>Lifecycle Management</td><td>New instance <span class="highlight-blue">per request</span> (<span class="highlight-blue">transient</span> or <span class="highlight-blue">scoped</span>), ideal for <span class="highlight-blue">request-specific services</span></td><td><span class="highlight-red">Singleton-like behavior</span>; same instance <span class="highlight-red">reused across requests</span></td></tr>
+        <tr><td>Testability & Reusability</td><td>Highly <span class="highlight-blue">testable</span> and <span class="highlight-blue">reusable</span> due to <span class="highlight-blue">DI</span> and <span class="highlight-blue">separation of concerns</span></td><td>Less <span class="highlight-red">testable</span>; often <span class="highlight-red">tightly coupled</span> to pipeline logic</td></tr>
+        <tr><td>Use Case</td><td>Recommended for <span class="highlight-blue">complex middleware</span> needing <span class="highlight-blue">DI</span> (e.g., <span class="highlight-blue">logging</span>, <span class="highlight-blue">auth</span>, <span class="highlight-blue">scoped services</span>)</td><td>Suitable for <span class="highlight-red">simple</span>, <span class="highlight-red">stateless logic</span> or <span class="highlight-red">quick inline filters</span></td></tr>
+        <tr><td>Performance Consideration</td><td>Slight <span class="highlight-blue">overhead</span> due to <span class="highlight-blue">per-request instantiation</span></td><td>Slightly <span class="highlight-red">faster</span> due to <span class="highlight-red">static instantiation</span></td></tr>
+    </table>
+
+</body>
+</html>
