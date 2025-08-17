@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ASP.NET Core - Routing Notes</title>
+		<style>
+			body {
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				padding: 25px 30px;
+				line-height: 1.6;
+				color: #333;
+			}
+			h1 {
+				color: #2c3e50;
+				text-align: center;
+				font-size: 2.5em;
+				margin-bottom: 20px;
+				font-weight: bold;
+			}
+			h2 {
+				color: #34495e;
+				border-bottom: 3px solid #3498db;
+				padding-bottom: 10px;
+				margin: 30px 0 20px;
+				font-size: 2em;
+				font-weight: bold;
+			}
+			h3 {
+				color: #2c3e50;
+				margin: 20px 0 15px;
+				font-size: 1.5em;
+				font-weight: bold;
+			}
+			h4 {
+				color: #2c3e50;
+				margin: 15px 0 10px;
+				font-size: 1.2em;
+				font-weight: normal;
+			}
+			ul,
+			ol {
+				padding-left: 25px;
+				margin: 15px 0;
+			}
+			li {
+				margin: 8px 0;
+			}
+			p {
+				margin: 10px 0;
+			}
+			pre {
+				background: #f5f5f5;
+				border: 2px solid #ccc;
+				border-radius: 8px;
+				overflow-x: auto;
+				margin: 20px 0;
+				padding: 15px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+			}
+			code {
+				font-family: "Consolas", "Courier New", monospace;
+				color: #333333;
+				font-size: 14px;
+				line-height: 1.6;
+				white-space: pre-wrap;
+			}
+			code .keyword {
+				color: #0000ff;
+				/* font-weight: bold; */
+			}
+			code .type {
+				color: #2b91af;
+			}
+			code .string {
+				color: #a31515;
+			}
+			code .comment {
+				color: #008000;
+			}
+			code .number {
+				color: #09885a;
+			}
+			code .attribute {
+				color: #ff4500;
+			}
+			code .operator {
+				color: #000000;
+			}
+			code .punctuation {
+				color: #000000;
+			}
+			.code-explanation {
+				background: #f9f9f9;
+				padding: 15px;
+				border-left: 5px solid #3498db;
+				margin: 15px 0;
+				border-radius: 4px;
+			}
+			.highlight-blue {
+				color: #0000ff;
+			}
+			.highlight-red {
+				color: #ff0000;
+			}
+			.highlight-green {
+				color: #008000;
+			}
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				margin: 20px 0;
+			}
+			th,
+			td {
+				border: 1px solid #ddd;
+				padding: 8px;
+				text-align: left;
+			}
+			th {
+				background-color: #34495e;
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="position: absolute; top: 22px; left: 32px; z-index: 10">
+			<a
+				href="index.html"
+				style="
+					display: inline-block;
+					background: #3498db;
+					color: #fff;
+					padding: 8px 22px;
+					border-radius: 6px;
+					text-decoration: none;
+					font-weight: bold;
+					font-size: 1.1em;
+					box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
+					transition: background 0.2s;
+				"
+				>🏠 Home</a
+			>
+		</div>
+		<h1>ASP.NET Core - Routing 🛤️</h1>
+
+		<h2>What is Routing?</h2>
+		<p>
+			Routing is the mechanism that ASP.NET Core uses to match incoming
+			HTTP requests to specific endpoints (e.g., controller actions, Razor
+			Pages, or minimal API handlers) within your application.
+		</p>
+		<img
+			src="https://img-c.udemycdn.com/redactor/raw/article_lecture/2022-10-21_16-56-22-c24792a05a7cf080f482922511f5e095.png"
+			width="100%"
+		/>
+		<h2>How Routing Works in ASP.NET Core 🌐</h2>
+		<ol>
+			<li>
+				<strong>Endpoint Registration:</strong>
+				<ul>
+					<li>
+						You define endpoints (routes) within your application,
+						specifying:
+					</li>
+					<li>
+						The URL pattern (e.g., <code>/products</code>,
+						<code>/api/orders/{id}</code>).
+					</li>
+				</ul>
+			</li>
+			<li>
+				<strong>Request Matching (Middleware):</strong>
+				<ul>
+					<li>
+						The
+						<span class="highlight-blue">UseRouting</span>
+						middleware component is added to the pipeline.
+					</li>
+				</ul>
+			</li>
+			<li>
+				<strong>Endpoint Execution (Middleware):</strong>
+				<ul>
+					<li>
+						The
+						<span class="highlight-blue">UseEndpoints</span>
+						middleware component is added to the pipeline, following
+						<span class="highlight-blue">UseRouting</span>.
+					</li>
+					<li>
+						If <span class="highlight-blue">UseRouting</span> found
+						a matching endpoint,
+						<span class="highlight-blue">UseEndpoints</span>
+						executes the code (the RequestDelegate) associated with
+						that endpoint.
+					</li>
+				</ul>
+			</li>
+		</ol>
+
+		<h2>UseRouting vs. UseEndpoints ⚖️</h2>
+		<table>
+			<tr>
+				<th>Aspect</th>
+				<th>UseRouting</th>
+				<th>UseEndpoints</th>
+			</tr>
+			<tr>
+				<td>Responsibility 🌟</td>
+				<td>
+					Responsible for route matching - finding the right endpoint
+					for a given request.
+				</td>
+				<td>
+					Responsible for endpoint execution - invoking the code (the
+					delegate) associated with the matched endpoint.
+				</td>
+			</tr>
+			<tr>
+				<td>Action 🔧</td>
+				<td>
+					Adds route data to the HttpContext, which subsequent
+					middleware can use to make decisions.
+				</td>
+				<td>
+					Allows configuration of endpoints (e.g., define policies,
+					filters) using lambda expressions.
+				</td>
+			</tr>
+			<tr>
+				<td>Order in Pipeline ⏳</td>
+				<td>Must come before UseEndpoints.</td>
+				<td>Follows UseRouting in the pipeline.</td>
+			</tr>
+		</table>
+
+		<h3>Map* Methods: (for Creating Endpoints)</h3>
+		<p>
+			ASP.NET Core provides a family of
+			<span class="highlight-blue">Map*</span> extension methods on the
+			<span class="highlight-blue">IEndpointRouteBuilder</span> interface
+			that simplify endpoint creation:
+		</p>
+		<ul>
+			<li>
+				<strong>MapGet</strong>: Creates an endpoint that only handles
+				GET requests.
+			</li>
+			<li>
+				<strong>MapPost</strong>: Creates an endpoint that only handles
+				POST requests.
+			</li>
+			<li>
+				<strong>MapPut</strong>, <strong>MapDelete</strong>: Create
+				endpoints for PUT and DELETE requests, respectively.
+			</li>
+			<li>
+				<strong>MapMethods</strong>: Creates an endpoint that handles
+				multiple HTTP methods.
+			</li>
+			<li>
+				<strong>MapControllerRoute</strong>,
+				<strong>MapAreaControllerRoute</strong>: Used for configuring
+				MVC/Razor Pages controllers.
+			</li>
+			<li>
+				<strong>MapFallbackToFile</strong>: Used to specify a default
+				file to serve when no other endpoint matches.
+			</li>
+		</ul>
+
+		<pre><code>
+//enable routing
+<span class="keyword">app</span>.<span class="attribute">UseRouting</span>();
+
+//creating endpoints
+<span class="keyword">app</span>.<span class="attribute">UseEndpoints</span>(endpoints =&gt;
+{
+    <span class="comment">//add your endpoints here</span>
+    endpoints.<span class="attribute">MapGet</span>(<span class="string">"map1"</span>, <span class="keyword">async</span> (context) =&gt; {
+       <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"In Map 1"</span>);
+    });
+
+    endpoints.<span class="attribute">MapPost</span>(<span class="string">"map2"</span>, <span class="keyword">async</span> (context) =&gt; {
+       <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"In Map 2"</span>);
+    });
+});
+
+<span class="keyword">app</span>.<span class="attribute">Run</span>(<span class="keyword">async</span> context =&gt; {
+    <span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>($"Request received at {context.Request.Path}");
+});
+        </code></pre>
+		<div class="code-explanation">
+			In this code:
+			<ol>
+				<li>
+					<code>app.UseRouting();</code>: This line activates routing
+					middleware. It sets up the machinery to analyze incoming
+					requests and match them against your defined endpoints.
+				</li>
+				<li>
+					<code>app.UseEndpoints(endpoints =&gt; { ... });</code>:
+					This lambda expression configures the endpoints of your
+					application:
+					<ul>
+						<li>
+							<code>endpoints.MapGet("map1", ...);</code>:
+							Registers a GET endpoint that responds to the path
+							<code>/map1</code> with the text "In Map 1".
+						</li>
+						<li>
+							<code>endpoints.MapPost("map2", ...);</code>:
+							Registers a POST endpoint for the path
+							<code>/map2</code>, responding with "In Map 2".
+						</li>
+					</ul>
+				</li>
+				<li>
+					<code>app.Run(async context =&gt; { ... });</code>: This is
+					a fallback terminal middleware. If no other endpoint matches
+					the request (e.g., if you visit <code>/map3</code>), it will
+					execute this code, writing the requested path to the
+					response.
+				</li>
+			</ol>
+		</div>
+
+		<h3>GetEndpoint()</h3>
+		<p>
+			In ASP.NET Core, the <code>GetEndpoint()</code> method retrieves
+			information about the specific endpoint in an incoming HTTP request.
+			This method is an extension method available on the
+			<code>HttpContext</code> object.
+		</p>
+		<ul>
+			<li>
+				<b>Purpose 🎯:</b> It allows you to access details about the
+				matched endpoint, such as its display name, route pattern,
+				metadata, and more.
+			</li>
+			<li>
+				<b>When to Use It ⏰:</b> You typically use
+				<code>GetEndpoint()</code> within middleware components to make
+				decisions based on the selected endpoint or to extract
+				information that's relevant to your custom logic.
+			</li>
+			<li>
+				<b>Middleware Placement 🔧:</b> The
+				<code>GetEndpoint()</code> method will return a valid
+				<code>Endpoint</code> object only after the
+				<code>UseRouting</code> middleware has executed and successfully
+				matched the request to an endpoint.
+			</li>
+<img 
+src="https://img-c.udemycdn.com/redactor/raw/article_lecture/2022-10-23_18-12-31-a616abfc505b1586b429d766ca43f08f.png"
+width="100%"/>
+<pre><code>
+// <span class="keyword">var</span> builder = WebApplication.CreateBuilder(args);
+// <span class="keyword">var</span> app = builder.Build();
+ 
+// Middleware 1: Before Routing
+app.<span class="attribute">Use</span>(<span class="keyword">async</span> (context, next) =&gt; 
+{
+	Microsoft.AspNetCore.Http.Endpoint? endPoint = context.<span class="attribute">GetEndpoint</span>();
+	<span class="keyword">if</span> (endPoint != <span class="keyword">null</span>)
+	{
+		<span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>($"Endpoint: {endPoint.DisplayName}\n");
+	}
+	<span class="keyword">await</span> next(context);
+});
+ 
+// Enable Routing Middleware
+app.<span class="attribute">UseRouting</span>();
+ 
+// Middleware 2: After Routing
+app.<span class="attribute">Use</span>(<span class="keyword">async</span> (context, next) =&gt;
+{
+	Microsoft.AspNetCore.Http.Endpoint? endPoint = context.<span class="attribute">GetEndpoint</span>();
+	<span class="keyword">if</span> (endPoint != <span class="keyword">null</span>)
+	{
+		<span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>($"Endpoint: {endPoint.DisplayName}\n");
+	}
+	<span class="keyword">await</span> next(context);
+});
+ 
+// Creating Endpoints
+app.<span class="attribute">UseEndpoints</span>(endpoints =&gt;
+{
+	endpoints.<span class="attribute">MapGet</span>(<span class="string">"map1"</span>, <span class="keyword">async</span> (context) =&gt; 
+	{
+		<span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"In Map 1"</span>);
+	});
+ 
+	endpoints.<span class="attribute">MapPost</span>(<span class="string">"map2"</span>, <span class="keyword">async</span> (context) =&gt;
+	{
+		<span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>(<span class="string">"In Map 2"</span>);
+	});
+});
+ 
+// Fallback Middleware
+app.<span class="attribute">Run</span>(<span class="keyword">async</span> context =&gt; 
+{
+	<span class="keyword">await</span> context.<span class="type">Response</span>.<span class="attribute">WriteAsync</span>($"Request received at {context.Request.Path}");
+});
+ 
+app.<span class="attribute">Run</span>();
+</code></pre>
+
+		<div class="code-explanation">
+			Let's analyze the code step-by-step 🔍
+			<ol>
+				<li>
+					<b>Middleware 1 (Before Routing) ⏳:</b>
+					<br />
+					Here, <code>GetEndpoint()</code> will return
+					<code>null</code> because routing hasn't happened yet. The
+					request hasn't been matched to any specific endpoint.
+				</li>
+				<li>
+					<b><code>app.UseRouting();</code> 🛤️:</b>
+					<br />
+					This enables the routing middleware, which is responsible
+					for matching the request to an endpoint.
+				</li>
+				<li>
+					<b>Middleware 2 (After Routing) ✅:</b>
+					<br />
+					Now, <code>GetEndpoint()</code> will return the matched
+					<code>Endpoint</code> object (if a match was found). You can
+					access its <code>DisplayName</code> (or other properties) to
+					get information about the selected endpoint.
+					<ul>
+						<li>
+							For a GET request to <code>/map1</code>, the display
+							name would be <code>map1</code>.
+						</li>
+						<li>
+							For a POST request to <code>/map2</code>, the
+							display name would be <code>map2</code>.
+						</li>
+						<li>
+							For any other path, the display name would be
+							<code>null</code> (since the fallback middleware
+							handles those cases).
+						</li>
+					</ul>
+				</li>
+				<li>
+					<b>Endpoint Creation 🛠️:</b>
+					<br />
+					The <code>app.UseEndpoints</code> section defines your
+					endpoints (routes).
+				</li>
+				<li>
+					<b>Fallback Middleware 🏁:</b>
+					<br />
+					This middleware handles requests that didn't match any
+					defined endpoints. It simply writes the requested path to
+					the response.
+				</li>
+			</ol>
+		</div>
+	</body>
+</html>
