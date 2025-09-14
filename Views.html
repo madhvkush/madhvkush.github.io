@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ASP.NET Core - Views</title>
+		<style>
+			body {
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				padding: 25px 30px;
+				line-height: 1.6;
+				color: #333;
+				background: #f9f9f9;
+			}
+			h1 {
+				color: #2c3e50;
+				text-align: center;
+				font-size: 2.2em;
+				margin-bottom: 20px;
+				font-weight: bold;
+			}
+			h2 {
+				color: #34495e;
+				border-bottom: 3px solid #3498db;
+				padding-bottom: 10px;
+				margin: 30px 0 20px;
+				font-size: 1.5em;
+				font-weight: bold;
+			}
+			h3 {
+				color: #2c3e50;
+				margin: 20px 0 15px;
+				font-size: 1.2em;
+				font-weight: bold;
+			}
+			ul,
+			ol {
+				padding-left: 25px;
+				margin: 15px 0;
+			}
+			li {
+				margin: 8px 0;
+			}
+			p {
+				margin: 10px 0;
+			}
+			pre {
+				background: #f5f5f5;
+				border: 2px solid #ccc;
+				border-radius: 8px;
+				overflow-x: auto;
+				margin: 20px 0;
+				padding: 15px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+			}
+			code {
+				font-family: "Consolas", "Courier New", monospace;
+				color: #333333;
+				font-size: 14px;
+				line-height: 1.6;
+				white-space: pre-wrap;
+			}
+			code .keyword {
+				color: #0000ff;
+			}
+			code .type {
+				color: #2b91af;
+			}
+			code .string {
+				color: #a31515;
+			}
+			code .comment {
+				color: #008000;
+			}
+			code .number {
+				color: #09885a;
+			}
+			code .attribute {
+				color: #ff4500;
+			}
+			code .operator {
+				color: #000000;
+			}
+			code .punctuation {
+				color: #000000;
+			}
+			.code-explanation {
+				background: #f9f9f9;
+				padding: 15px;
+				border-left: 5px solid #3498db;
+				margin: 15px 0;
+				border-radius: 4px;
+			}
+			.highlight-blue {
+				color: #0000ff;
+			}
+			.highlight-red {
+				color: #ff0000;
+			}
+			.highlight-green {
+				color: #008000;
+			}
+			.highlighter-yellow {
+				background: #fff9c4;
+				color: #333;
+				border-radius: 4px;
+				padding: 0 3px;
+			}
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				margin: 20px 0;
+			}
+			th {
+				background-color: #34495e;
+				color: #fff;
+				padding: 10px;
+				border: 1px solid #ddd;
+			}
+			td {
+				padding: 8px;
+				border: 1px solid #ddd;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="position: absolute; top: 22px; left: 32px; z-index: 10">
+			<a
+				href="index.html"
+				style="
+					display: inline-block;
+					background: #3498db;
+					color: #fff;
+					padding: 8px 22px;
+					border-radius: 6px;
+					text-decoration: none;
+					font-weight: bold;
+					font-size: 1.1em;
+					box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
+					transition: background 0.2s;
+				"
+				>🏠 Home</a
+			>
+		</div>
+		<h1>ASP.NET Core - Views</h1>
+
+		<h2>Enable MVC features</h2>
+		<pre><code>
+<span class="comment">// Program.cs</span>
+builder.<span class="attribute">Services</span>.<span class="highlighter-yellow">AddControllersWithViews</span>(); <span class="comment">// Enables MVC features</span>
+        </code></pre>
+		<div class="code-explanation">
+			The
+			<b
+				><span class="highlighter-yellow"
+					>AddControllersWithViews()</span
+				></b
+			>
+			method configures the application for MVC, including view support.
+		</div>
+
+		<h4>Rendering a View from a Controller</h4>
+		<pre><code>
+<span class="comment">// HomeController.cs</span>
+[Route(<span class="string">"home"</span>)]
+<span class="keyword">public</span> <span class="type">IActionResult</span> Index()
+{
+    <span class="keyword">return</span> View(); <span class="comment">// Renders Views/Home/Index.cshtml</span>
+}
+        </code></pre>
+		<pre><code>
+<span class="comment">// Views/Home/Index.cshtml</span>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;Asp.Net Core App&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        Welcome
+    &lt;/body&gt;
+&lt;/html&gt;
+        </code></pre>
+
+		<h2>@Html.Raw in Razor Views</h2>
+		<ul>
+			<li class="highlighter-yellow">
+				Execute html JS code without encoded.
+			</li>
+			<li>
+				By default, Razor HTML-encodes any string rendered using
+				<code>@</code>, which means special characters like <, >, and
+				&amp; are converted to their safe HTML equivalents
+				(<code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>) to
+				prevent script injection and ensure safe rendering.
+			</li>
+			<li>
+				To bypass encoding and render raw HTML or JavaScript directly
+				into the page, you can use
+				<code class="highlighter-yellow">@Html.Raw(...)</code>. This is
+				especially useful when you need to inject dynamic scripts or
+				HTML markup that should not be escaped.
+			</li>
+		</ul>
+		<div class="code-explanation">
+			<b>⚠️ Caution:</b> Using
+			<code class="highlighter-yellow">@Html.Raw</code> can expose your
+			application to Cross-Site Scripting (XSS) vulnerabilities if the
+			content is not properly sanitized. Only use it when you're confident
+			the content is safe and controlled.
+		</div>
+		<h3>✅ Example: Injecting a JavaScript Alert with @Html.Raw</h3>
+		<pre><code>
+@{
+    <span class="comment">// ... (other variables and logic) ...</span>
+    <span class="type">string</span> alertMessage = $"&lt;script&gt;alert('{people.Count} people found')&lt;/script&gt;";
+}
+ 
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    @Html.Raw(alertMessage)  
+    &lt;h1&gt;Welcome&lt;/h1&gt;
+    @for (<span class="type">int</span> i = 0; i &lt; 2; i++)
+    {
+        <span class="comment">// ... (rest of the view code) ...</span>
+    }
+&lt;/body&gt;
+&lt;/html&gt;
+        </code></pre>
+
+		<h2>ViewData vs ViewBag</h2>
+		<table>
+			<tr>
+				<th>Feature</th>
+				<th>ViewData</th>
+				<th>ViewBag</th>
+			</tr>
+			<tr>
+				<td>Type Safety</td>
+				<td style="color: #e74c3c">&#10060; Must cast manually</td>
+				<td style="color: #27ae60">
+					&#10004; Dynamic, no casting needed
+				</td>
+			</tr>
+			<tr style="background-color: #f5f5f5">
+				<td>Compile-time check</td>
+				<td style="color: #27ae60">&#10004; If cast correctly</td>
+				<td style="color: #e74c3c">
+					&#10060; Errors only show at runtime
+				</td>
+			</tr>
+			<tr>
+				<td>IntelliSense</td>
+				<td style="color: #27ae60">&#10004; Available after casting</td>
+				<td style="color: #e74c3c">
+					&#10060; Limited due to dynamic typing
+				</td>
+			</tr>
+		</table>
+		<pre><code>
+<span class="comment">// HomeController.cs (Controller)</span>
+ViewData[<span class="string">"appTitle"</span>] = <span class="string">"Asp.Net Core Demo App"</span>;
+ViewData[<span class="string">"people"</span>] = people; 
+ 
+<span class="comment">// Index.cshtml (View)</span>
+&lt;title&gt;@ViewData["appTitle"]&lt;/title&gt;
+List&lt;Person&gt;? people = (List&lt;Person&gt;?)ViewData["people"];
+        </code></pre>
+		<pre><code>
+<span class="comment">// HomeController.cs (Controller)</span>
+ViewBag.appTitle = <span class="string">"Asp.Net Core Demo App"</span>;
+ViewBag.people = people;
+
+<span class="comment">// Index.cshtml (View)</span>
+&lt;title&gt;@ViewBag.appTitle&lt;/title&gt;
+@foreach (Person person in ViewBag.people)
+        </code></pre>
+
+		<h2>Strongly Typed Views</h2>
+		<h3>The <span class="highlighter-yellow">@model</span> Directive</h3>
+		<p>
+			The <code class="highlighter-yellow">@model</code> directive is used
+			at the top of a view to specify the model type for that view.
+		</p>
+		<p>
+			For example,
+			<code class="highlighter-yellow">@model Person</code> indicates that
+			the view expects to work with data of the <b>Person</b> class.
+		</p>
+
+		<h3>Best Practices</h3>
+		<ul>
+			<li>
+				<b>Use View Models:</b> Instead of directly passing your
+				business models to views, create specialized view models
+				tailored to the data needed by each view. This helps keep your
+				views clean and focused.
+			</li>
+			<li>
+				<b>Naming Conventions:</b> Follow standard naming conventions
+				for your view models (e.g., <code>ProductViewModel</code>,
+				<code>OrderDetailsViewModel</code>).
+			</li>
+			<li>
+				<b>Keep Views Simple:</b> Views should primarily focus on
+				presentation logic. Avoid complex business logic within views.
+			</li>
+			<li>
+				<b>Partial Views:</b> Leverage partial views for reusable
+				components, passing view models to them as needed.
+			</li>
+			<li>
+				<b>Leverage Tag Helpers:</b> Explore the use of Tag Helpers,
+				which provide a more HTML-friendly way to interact with your
+				models in views.
+			</li>
+		</ul>
+	</body>
+</html>
